@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { FaUser, FaEnvelope, FaLock,FaCloudUploadAlt } from "react-icons/fa";
-
+import {useNavigate} from "react-router-dom";
 import { useDispatch } from "react-redux"; 
 import { registerUser } from "../../Auth/authIndex";
+import { NavLink } from "react-router-dom";
 function Register() {
   const dispatch = useDispatch();
+  const navigate = useNavigate(); 
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
 
   const handleChange = (e) =>{
@@ -20,7 +22,7 @@ function Register() {
   }
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle register logic here
+  
     console.log("Registering:", formData);
   };
 
@@ -79,13 +81,13 @@ function Register() {
           <button
             type="submit"
             className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition duration-300"
-            onClick={()=>dispatch(registerUser(formData))} // Dispatch the registerUser action with formData
+         
           >
             Register
           </button>
         </form>
         <p className="mt-4 text-sm text-center text-gray-600">
-          Already have an account? <a href="/login" className="text-indigo-600 hover:underline">Login here</a>
+          Already have an account? <NavLink to="/" className="text-indigo-600 hover:underline">Login here</NavLink>
         </p>
       </div>
     </div>

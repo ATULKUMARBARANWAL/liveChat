@@ -3,12 +3,14 @@ import authReducer from "./authReducer";
 
 const authSlice=createSlice({
     name:"auth",
-    initialState:authReducer.intialState,
+    initialState:authReducer.initialState,
     reducers:{
         logout:(state)=>{
             state.user=null;
             state.loading=false;
             state.error=null;
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
         }
     },
     extraReducers:authReducer.authExtraReducers

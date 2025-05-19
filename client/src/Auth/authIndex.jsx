@@ -4,6 +4,7 @@ export const registerUser = createAsyncThunk(
   'auth/registerUser',
   async (userData, { rejectWithValue }) => {
     try {
+      
       const formData = new FormData();
       formData.append("name", userData.name);
       formData.append("email", userData.email);
@@ -16,6 +17,23 @@ export const registerUser = createAsyncThunk(
         },
       });
 
+      return response.data;
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue(err.response?.data?.message || err.message);
+      }
+      return rejectWithValue(err.message);
+    }
+  }
+);
+export const loginUser = createAsyncThunk(
+  'auth/loginUser',
+  async (userData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post('http://localhost:3000/api/user/signin', {
+        email: userData.email,
+        password: userData.password
+      });
       return response.data;
     } catch (err) {
       if (axios.isAxiosError(err)) {
