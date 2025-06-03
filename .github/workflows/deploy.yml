@@ -1,45 +1,31 @@
-name: Deploy MERN App to EC2
+name: Deploy to EC2
 
 on:
   push:
     branches:
-      - main
+      - main  # or your default branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
+    - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
-
-    - name: Deploy to EC2
-      run: |
-        ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-          cd ~/liveChat || mkdir -p ~/liveChat && cd ~/liveChat
-
-          # Pull latest code
-          rm -rf client server temp
-          git clone https://github.com/ATULKUMARBARANWAL/liveChat temp
-          mv temp/client client && mv temp/server server && rm -rf temp
-
-          # Install server dependencies [Run on EC2]
-          cd server
-          npm install
-
-          # Restart backend using PM2
-          pm2 stop server || true
-          pm2 start index.js --name server
-
-          # Install frontend dependencies and build [Run on EC2]
-          cd ../client
+    - name: Deploy to EC2 via SSH
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd ~/liveChat
+          git pull origin main
+          cd client
           npm install
           npm run build
-        EOF
+          sudo cp -r build/* /var/www/html/
+          # Restart backend if needed, e.g.:
+          # pm2 restart server.js
+          sudo systemctl reload nginx

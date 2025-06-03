@@ -9,8 +9,8 @@ export const registerUser = createAsyncThunk(
       formData.append("name", userData.name);
       formData.append("email", userData.email);
       formData.append("password", userData.password);
-      formData.append("Url", userData.Url); // `Url` must be a File object
-
+      formData.append("pic", userData.Url); // `Url` must be a File object
+  
       const response = await axios.post('http://localhost:3000/api/user', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',

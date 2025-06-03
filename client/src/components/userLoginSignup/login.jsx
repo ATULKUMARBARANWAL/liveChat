@@ -10,11 +10,11 @@ const [formData,setFormData]=useState({email:"",password:""});
 const handleChange=(e)=>{
   const {name,value}=e.target;
  setFormData({...formData,[name]:value})
- console.log(formData)
+
 }
 const handleSubmit=(e)=>{
   e.preventDefault()
-  console.log("this is formData",formData)
+ 
 }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-darkGray to-darkerGray px-4">

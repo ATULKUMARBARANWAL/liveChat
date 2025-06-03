@@ -18,12 +18,19 @@ function Register() {
    else{
     setFormData({...formData,[name]:value})
    }
-   console.log("this is formData Baby",formData)
+
   }
   const handleSubmit = (e) => {
     e.preventDefault();
   
-    console.log("Registering:", formData);
+  dispatch(registerUser(formData))
+    .then((response) => {
+      console.log("Registration successful:", response);
+      navigate("/");
+    })
+    .catch((error) => {
+      console.error("Registration failed:", error);
+    });
   };
 
   return (

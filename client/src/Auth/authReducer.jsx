@@ -26,6 +26,7 @@ const authExtraReducers=(builder)=>{
 builder.addCase(loginUser.fulfilled,(state,action)=>{
     state.loading=false;
     state.user=action.payload;
+
     localStorage.setItem("user",JSON.stringify(action.payload))
     localStorage.setItem("token",action.payload.token)
 })
