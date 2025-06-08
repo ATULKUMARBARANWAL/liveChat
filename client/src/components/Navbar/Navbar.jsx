@@ -8,20 +8,25 @@ import { filterUsers } from "../../Users/userIndex.jsx";
 import { resetUsers } from "../../Users/userReducer.jsx"; // Import resetUsers action
 import { getUserDetails } from "../../Users/userIndex.jsx";
 import {getAllMessages} from "../../Users/userIndex.jsx"; 
+import { seetProfileOpen } from "../../Users/userReducer.jsx";
 const Navbar = () => {
     const dispatch=useDispatch()
   const { user } = useSelector((state) => state.auth);
  const { users } = useSelector((state) => state.user);
 
 const userId2=user.data._id;
-console.log("User ID 2:", userId2);
+
   const [isOpen, setIsOpen] = useState(false);
+  const [showList, setShowList] = useState(false);
+const [profileOpen,setProfileOpen]=useState(false);
 const [searchItem,setSearchItem]=useState("");
   const toggleMenu = () => setIsOpen(!isOpen);
 const handleLogout=()=>{
     dispatch(logout())
 }
+
 const handleSearch = (e) => {
+setShowList(true);
   const search = e.target.value;
 
   if (!search.trim()) {
@@ -30,15 +35,19 @@ const handleSearch = (e) => {
     return;
   }
 
+
   dispatch(filterUsers(search));
+
 };
 const handleUserClick = (e) => {
   e.preventDefault();
+   setShowList(false);
   const userId = e.target.dataset.key;
-  console.log("Selected User ID:", userId);
+
   if (!userId) return;
   dispatch(getAllMessages({ userId, userId2 }));
   dispatch(getUserDetails(userId));
+  dispatch(seetProfileOpen(true));
 };
 useEffect(() => {
   if (Array.isArray(users?.data)) {
@@ -69,7 +78,7 @@ useEffect(() => {
   
 {searchItem && (
   <ul className="absolute z-10 bg-white border w-full mt-1 max-h-60 overflow-y-auto shadow-lg rounded-md">
-    {Array.isArray(users?.data) && users.data.length > 0 ? (
+    {showList && Array.isArray(users?.data) && users.data.length > 0 ? (
       users.data.map((user) => (
         <li
           key={user._id}

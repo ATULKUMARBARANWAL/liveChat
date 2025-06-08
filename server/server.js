@@ -11,7 +11,7 @@ import { Server } from 'socket.io';
 import mongoose from 'mongoose';
 import messageSchema from './schema/messageSchema.js';
 import messsageRoutes from './route/messages.route.js';
-
+import groupRoute from './route/groupData.routes.js'
 dotenv.config();
 connectDB();
 
@@ -93,10 +93,10 @@ io.on('connection', (socket) => {
   });
 });
 
-// Routes and static file serving
 app.use('/api/user', userRoutes);
 app.use('/assets', express.static(path.join(__dirname, 'assets', 'userUpload')));
 app.use('/api/messages', messsageRoutes);
+app.use('/api/group',groupRoute);
 httpServer.listen(3000, () => {
   console.log('🚀 Server is running on http://localhost:3000');
 });

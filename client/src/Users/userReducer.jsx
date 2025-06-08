@@ -2,12 +2,15 @@ import { createSlice } from "@reduxjs/toolkit";
 import {filterUsers} from "./userIndex.jsx";
 import {getUserDetails} from "./userIndex.jsx";
 import {getAllMessages} from "./userIndex.jsx"; 
+
 const initialState={
     users:[],
     loading:false,
     messages:[],
-    error:null
+    error:null,
+    profileOpen:false
 }
+
 const userSlice=createSlice({
     name:"user",
     initialState,
@@ -16,6 +19,11 @@ const userSlice=createSlice({
             state.users = [];
             state.loading = false;
             state.error = null;
+        },
+        seetProfileOpen:(state,action)=>{
+  
+            state.profileOpen = action.payload;
+        
         }
     },
     
@@ -62,5 +70,5 @@ const userSlice=createSlice({
         });
     }
 })
-export const { resetUsers } = userSlice.actions;
+export const { resetUsers,seetProfileOpen } = userSlice.actions;
 export default userSlice.reducer;

@@ -48,7 +48,7 @@ export const getAllMessages = createAsyncThunk(
   "user/getAllMessages",
   async ({ userId, userId2 }, { rejectWithValue }) => {
     try {
-      console.log("getAllMessages called", userId, '=', userId2);
+     
 
       const response = await axios.get(`http://localhost:3000/api/messages/receiveMessages/${userId}/${userId2}`, {
         headers: {
