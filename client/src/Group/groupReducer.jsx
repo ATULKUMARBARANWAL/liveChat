@@ -4,15 +4,20 @@ import { allGroup } from "./groupIndex";
 const initialState={
     groups:[],
     loading:false,
-    error:null
+    error:null,
+    groupDetails:""
 }
 
 const groupSlice=createSlice({
     name:"group",
     initialState,
-    reducer:{
+  
+     reducers: {
+    groupDetails: (state, action) => {
+state.groupDetails=action.payload;
 
     },
+  },
     extraReducers:(builder)=>{
         builder
         .addCase(createGroup.pending,(state)=>{
@@ -43,4 +48,5 @@ const groupSlice=createSlice({
     }
 
 })
+export const {groupDetails}=groupSlice.actions;
 export default groupSlice.reducer;

@@ -1,7 +1,13 @@
 import userRepository from "../repository/user.repository.js";
 import UserRepository from "../repository/user.repository.js";
 import jwt from "jsonwebtoken";
+import path from "path";
+import { fileURLToPath } from "url";
+import fs from "fs";
 const jwtSecret=process.env.JWT_SECRET || 'default_jsonwebtoken_secret';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const UserController = {
   async registerUser(req, res, next) {
     try {
@@ -29,6 +35,27 @@ const UserController = {
       next(error);
     }
   },
+ async downloadImage(req, res, next) {
+  try {
+    const pic = req.params.pic;
+    console.log("Request to download:", pic);
+console.log("dirnmame",__dirname)
+    // Set correct path to your uploads directory (adjust if needed)
+    const imagePath = path.join(__dirname, "..", "assets","userUpload", pic);
+console.log(imagePath)
+    // Check if file exists
+    if (!fs.existsSync(imagePath)) {
+      return res.status(404).json({ message: "Image not found" });
+    }
+
+    // Send file
+    return res.download(imagePath, pic); // Force download with original filename
+  } catch (error) {
+    console.log(error.message);
+    next(error);
+  }
+}
+,
   async signInUser(req,res,next){
 try{
 const userData=req.body;
@@ -38,7 +65,7 @@ if(!userData.email || !userData.password)
   return res.status(400).json({message:"Please fill all the fields"})
 }
 const user=await UserRepository.signInUser(userData);
-console.log("this is user",user)
+
 if(!user)
 {
   res.status(400).json({message:"Invalid credentials"})

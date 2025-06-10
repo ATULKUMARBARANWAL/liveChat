@@ -5,6 +5,7 @@ import { resetUsers } from '../../Users/userReducer.jsx';
 import { allGroup } from '../../Group/groupIndex.jsx';
 import { getUserDetails } from '../../Users/userIndex.jsx';
 import { createGroup } from '../../Group/groupIndex.jsx';
+import { groupDetails } from '../../Group/groupReducer.jsx';
 const GroupChatRight = () => {
   const { users } = useSelector((state) => state.user);
  const {userDetails}=useSelector((state)=>state.user);
@@ -87,6 +88,11 @@ function handleGroupName(e)
 e.preventDefault()
 setGroupName(e.target.value)
 }
+function handleGroup(groupId)
+{
+
+ dispatch(groupDetails(groupId))
+}
   return (
     <div className="w-full md:w-[35%] h-[90vh] p-6 bg-white rounded-2xl shadow-xl flex flex-col border border-gray-200">
   {/* Header Section */}
@@ -166,8 +172,12 @@ setGroupName(e.target.value)
     <h3 className="text-sm font-medium text-gray-600 mb-2">Your Groups</h3>
     <ul className="text-sm text-gray-800 space-y-1">
       {groupData.map((data) => (
-        <li key={data._id} className="px-2 py-1 rounded hover:bg-blue-100 transition">
-         <b> {data.name}</b>
+        <li key={data._id} className="px-2 py-1 rounded hover:bg-blue-100 transition"
+
+        >
+   <b onClick={() => handleGroup(data._id)}>{data.name}</b>
+
+
         </li>
       ))}
     </ul>

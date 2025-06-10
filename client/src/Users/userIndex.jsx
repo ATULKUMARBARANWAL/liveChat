@@ -64,4 +64,25 @@ export const getAllMessages = createAsyncThunk(
       return rejectWithValue(err.message);
     }
   }
-);
+)
+export const downloadPic=createAsyncThunk(
+  "user/downloadPic",
+  async({pic},{rejectWithValue})=>{
+    console.log("Download",pic)
+    try{
+const response=await axios.get(`http://localhost:3000/api/user/downloadImage/${pic}`,{
+ responseType:'blob'
+})
+const imageUrl=URL.createObjectURL(response.data)
+console.log(imageUrl)
+return imageUrl;
+    }
+    catch(err)
+    {
+      if(axios.isAxiosError(err)){
+        return rejectWithValue(err.response?.data?.message || err.message)
+      }
+      return rejectWithValue(err.message)
+    }
+  }
+)

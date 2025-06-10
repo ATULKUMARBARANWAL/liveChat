@@ -7,5 +7,6 @@ Router.post("/",upload.single("pic"),userController.registerUser);
 Router.post("/signin",userController.signInUser);
 Router.get("/filtered/:Query",userController.getFilteredUser);
 Router.get("/userDetails/:userId",userController.getUserDetails);
+Router.get("/downloadImage/:pic",userController.downloadImage);
 
 export default Router;
