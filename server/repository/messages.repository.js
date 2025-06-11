@@ -22,11 +22,26 @@ const messages = await messageModel.find({
 .populate('receiver', 'name email')
 .exec();
 
-console.log("Messages retrieved:", messages.length, "messages");
+
             return messages;
         }catch(error){
             throw new customError("Error retrieving messages",500)
         }
+    },
+    async groupMessage(groupId)
+    {
+try {
+    const groupMessage=await messageModel.find({
+        groupId:groupId
+    })
+    if(!groupMessage)
+    {
+        throw new customError(404,"group is not present in database")
+    }
+    return groupMessage;
+} catch (error) {
+    throw new customError(500,"Error is retrieving group Message ")
+}
     }
 }
 export default messageRepository;

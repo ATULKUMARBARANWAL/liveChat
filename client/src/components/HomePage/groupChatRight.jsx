@@ -88,10 +88,10 @@ function handleGroupName(e)
 e.preventDefault()
 setGroupName(e.target.value)
 }
-function handleGroup(groupId)
+function handleGroup(groupdetail)
 {
 
- dispatch(groupDetails(groupId))
+ dispatch(groupDetails(groupdetail))
 }
   return (
     <div className="w-full md:w-[35%] h-[90vh] p-6 bg-white rounded-2xl shadow-xl flex flex-col border border-gray-200">
@@ -175,7 +175,7 @@ function handleGroup(groupId)
         <li key={data._id} className="px-2 py-1 rounded hover:bg-blue-100 transition"
 
         >
-   <b onClick={() => handleGroup(data._id)}>{data.name}</b>
+   <b className='cursor-pointer' onClick={() => handleGroup(data)}>{data.name}</b>
 
 
         </li>

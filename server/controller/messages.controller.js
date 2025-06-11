@@ -15,7 +15,31 @@ const messagesController={
     } catch(error) {
         throw new customError("Error retrieving messages", 500);
         next(error);
-        }    }
+        }    },
+        async groupMessage(req,res,next)
+        {
+            try{
+        const groupId=req.params.groupId;
+     
+        if(!groupId)
+        {
+            throw new customError(400,'groupId is not present')
+        }
+        const allGroupMessage=await messageRepository.groupMessage(groupId)
+        if(!allGroupMessage)
+        {
+            throw new customError(404,'there is not any message present for perticuler groupId')
+        }
+        res.status(201).json({message:"all message of a group",
+            data:allGroupMessage
+
+       } )
+            }
+            catch(err)
+            {
+                throw new customError(500,"Somthing went Wrong")
+            }
+        }
 }
 
 export default messagesController;

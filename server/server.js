@@ -12,6 +12,7 @@ import mongoose from 'mongoose';
 import messageSchema from './schema/messageSchema.js';
 import messsageRoutes from './route/messages.route.js';
 import groupRoute from './route/groupData.routes.js'
+import customError from './middleware/applicationError.middleware.js';
 dotenv.config();
 connectDB();
 
@@ -91,7 +92,42 @@ io.on('connection', (socket) => {
       }
     }
   });
+  socket.on('groupMessage', (data) => {
+
+  
+try{
+const newMessage=new messageModel({
+    sender:data.sender,
+      message: data.message,
+      isGroupMessage:true,
+      groupId:data.groupId,
+      admin:data.admin
+
+  })
+if(!newMessage)
+{
+  throw new customError(500,"Not able to store group Message")
+}
+else{
+  newMessage.save()
+}
+io.to(data.groupId).emit('receiveGroupMessage', data); 
+
+}
+catch(err)
+{
+  throw customError(500,"Error in iserting in Database")
+}
+ 
 });
+socket.on('joinRoom', (roomId) => {
+  console.log("📥 Group Room Joined:", roomId);
+  socket.join(roomId); // ✅ use directly without sorting
+});
+
+
+});
+
 
 app.use('/api/user', userRoutes);
 app.use('/assets', express.static(path.join(__dirname, 'assets', 'userUpload')));

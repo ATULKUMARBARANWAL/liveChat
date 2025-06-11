@@ -1,11 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { createGroup } from "./groupIndex";
 import { allGroup } from "./groupIndex";
+import { allgroupMessage } from "./groupIndex";
 const initialState={
     groups:[],
     loading:false,
     error:null,
-    groupDetails:""
+    groupDetails:"",
+    groupMessage:[]
 }
 
 const groupSlice=createSlice({
@@ -42,6 +44,18 @@ state.groupDetails=action.payload;
 })
 
         .addCase(allGroup.rejected,(state,action)=>{
+            state.loading=false
+            state.error=action.payload
+        })
+        .addCase(allgroupMessage.pending,(state)=>{
+            state.loading=true
+            state.error=null
+        })
+        .addCase(allgroupMessage.fulfilled,(state,action)=>{
+            state.loading=false
+            state.groupMessage=null
+        })
+        .addCase(allgroupMessage.rejected,(state,action)=>{
             state.loading=false
             state.error=action.payload
         })

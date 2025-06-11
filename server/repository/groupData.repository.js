@@ -29,9 +29,10 @@ if(!userId)
 {
   throw new customError("User Id is not present",404)
 }
-const findGroup= await groupModel.find({
-  members:userId
-})
+const findGroup = await groupModel.find({
+  members: userId
+}).populate('members', 'name');
+
 
 if(!findGroup)
 {
@@ -39,6 +40,7 @@ if(!findGroup)
 throw customError("there is not any group present for perticuler user",500)
 }
 console.log("outer")
+console.log(findGroup)
 return findGroup;
 }
 }

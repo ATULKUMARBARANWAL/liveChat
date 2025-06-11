@@ -46,3 +46,23 @@ export const allGroup = createAsyncThunk(
     }
   }
 );
+export const allgroupMessage=createAsyncThunk(
+  'group/allgroupMessage',
+  async (groupId,{rejectWithValue})=>{
+    try{
+    
+     const response=await axios.get(`http://localhost:3000/api/messages/allgroupMessage/${groupId}`,{
+      headers:{'Content-Type':'application/json'}
+     })
+     console.log(response.data)
+     return response.data;
+    }
+    catch(err)
+    {
+      if(axios.isAxiosError(err)){
+        return rejectWithValue(err.response?.data?.message || err.message)
+      }
+      return rejectWithValue(err.message)
+    }
+  }
+)
