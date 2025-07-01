@@ -54,7 +54,7 @@ export const allgroupMessage=createAsyncThunk(
      const response=await axios.get(`http://localhost:3000/api/messages/allgroupMessage/${groupId}`,{
       headers:{'Content-Type':'application/json'}
      })
-     console.log(response.data)
+
      return response.data;
     }
     catch(err)

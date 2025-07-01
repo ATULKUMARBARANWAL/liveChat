@@ -36,11 +36,10 @@ const findGroup = await groupModel.find({
 
 if(!findGroup)
 {
-  console.log("inner")
+
 throw customError("there is not any group present for perticuler user",500)
 }
-console.log("outer")
-console.log(findGroup)
+
 return findGroup;
 }
 }

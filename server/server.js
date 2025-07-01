@@ -47,11 +47,35 @@ io.on('connection', (socket) => {
 
   // Join a room
   socket.on('joinRoom', (roomId) => {
-    console.log(`📦 Joining room: ${roomId}`);
+  if (roomId.includes("_")) {
+    // 1-1 private room
     const sortedRoomId = roomId.split('_').sort().join('_');
     socket.join(sortedRoomId);
-    console.log("👥 Joined room:", sortedRoomId);
+    console.log("👥 Joined 1-1 Room:", sortedRoomId);
+  } else {
+    // group room
+    socket.join(roomId);
+    console.log("📥 Group Room Joined:", roomId);
+  }
+});
+socket.on('joinVideoCall', ({ sender, receiver }) => {
+  console.log(`🔗 User ${sender} is joining a video call with ${receiver}`);
+  const receiverSocketId = connectedUsers.get(receiver);
+
+  if (!receiverSocketId) {
+    console.error(`❌ Receiver with ID ${receiver} not found`);
+    return;
+  }
+
+  io.to(receiverSocketId).emit('videoCallRequest', {
+    sender,
+    receiver,
+    socketId: socket.id, // This is the sender's socket ID
   });
+
+  console.log(`📤 Video call request sent from ${sender} to ${receiver}`);
+});
+
 
   // Handle incoming messages
   socket.on('sendMessages', async (message) => {
@@ -120,10 +144,7 @@ catch(err)
 }
  
 });
-socket.on('joinRoom', (roomId) => {
-  console.log("📥 Group Room Joined:", roomId);
-  socket.join(roomId); // ✅ use directly without sorting
-});
+
 
 
 });

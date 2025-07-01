@@ -38,11 +38,10 @@ const UserController = {
  async downloadImage(req, res, next) {
   try {
     const pic = req.params.pic;
-    console.log("Request to download:", pic);
-console.log("dirnmame",__dirname)
+
     // Set correct path to your uploads directory (adjust if needed)
     const imagePath = path.join(__dirname, "..", "assets","userUpload", pic);
-console.log(imagePath)
+
     // Check if file exists
     if (!fs.existsSync(imagePath)) {
       return res.status(404).json({ message: "Image not found" });

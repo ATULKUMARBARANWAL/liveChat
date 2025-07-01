@@ -1,17 +1,38 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect ,useRef} from "react";
 import { useSelector ,useDispatch} from "react-redux";
+import { SlOptionsVertical } from "react-icons/sl";
 import io from 'socket.io-client';
 import { allgroupMessage } from "../../Group/groupIndex";
 const socket = io.connect('http://localhost:3000');
 
+
 const GroupChatLeft = () => {
   const dispatch=useDispatch()
   const { groupDetails } = useSelector((state) => state.group);
-
+const groupMessages = useSelector((state) => state.group.groupMessage);
+const messageRef=useRef(null);
+console.log("Group Messages",groupMessages)
   const sender = useSelector((state) => state.auth.user.data._id);
 
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([]); // <-- store all messages
+  const [messages, setMessages] = useState([]);
+const [isOptionsVisible, setIsOptionsVisible] = useState(false);
+  useEffect(()=>{
+messageRef.current?.scrollIntoView({behavior:"smooth"})
+},[messages])
+useEffect(() => {
+  if (groupMessages.data) {
+    const sorted = [...groupMessages.data].sort((a, b) =>
+      new Date(a.createdAt) - new Date(b.createdAt)
+    );
+    setMessages(sorted);
+  }
+}, [groupMessages.data]);
+function handleOptionClick(e) {
+  e.preventDefault();
+  setIsOptionsVisible(!isOptionsVisible);
+ 
+}
 useEffect(()=>{
 dispatch(allgroupMessage(groupDetails._id))
 },[groupDetails._id])
@@ -61,16 +82,33 @@ dispatch(allgroupMessage(groupDetails._id))
   return (
     <div className="w-full md:w-[40%] h-[90vh] p-6 bg-white rounded-2xl shadow-xl border border-gray-200 flex flex-col justify-between">
       <div className="overflow-y-auto mb-4">
-        <h2 className="text-2xl font-semibold text-green-700 mb-4">Group: {groupDetails.name}</h2>
-       {messages.map((msg, index) => {
-  const senderObj = groupDetails.members.find((member) => member._id === msg.sender);
-  const senderName = msg.sender === sender ? 'You' : senderObj?.name || 'Unknown';
+<h2 className="text-2xl font-semibold text-green-700 mb-4 flex items-center justify-between">
+  <span>Group: {groupDetails.name}</span>
+<span className="text-gray-500 cursor-pointer" onClick={handleOptionClick} ><SlOptionsVertical /></span>
+
+
+</h2>
+{isOptionsVisible==
+<ul className="hidden">
+  <li>
+    <b>YUP</b>
+  </li>
+</ul>
+}
+     {messages.map((msg, index) => {
+  const senderId = typeof msg.sender === 'object' ? msg.sender._id : msg.sender;
+  const senderName =
+    senderId === sender
+      ? 'You'
+      : msg.sender?.name ||
+        groupDetails.members.find((member) => member._id === senderId)?.name ||
+        'Unknown';
 
   return (
     <div
       key={index}
       className={`mb-2 p-2 rounded-lg ${
-        msg.sender === sender ? 'bg-blue-100 text-right' : 'bg-gray-100 text-left'
+        senderId === sender ? 'bg-blue-100 text-right' : 'bg-gray-100 text-left'
       }`}
     >
       <span className="text-sm font-medium">{senderName}</span>
@@ -79,6 +117,7 @@ dispatch(allgroupMessage(groupDetails._id))
   );
 })}
 
+  <div ref={messageRef } />
       </div>
 
       <form onSubmit={handleSendMessage} className="mt-auto">

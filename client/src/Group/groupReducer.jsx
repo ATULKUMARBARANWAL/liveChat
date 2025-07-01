@@ -53,7 +53,7 @@ state.groupDetails=action.payload;
         })
         .addCase(allgroupMessage.fulfilled,(state,action)=>{
             state.loading=false
-            state.groupMessage=null
+            state.groupMessage=action.payload
         })
         .addCase(allgroupMessage.rejected,(state,action)=>{
             state.loading=false

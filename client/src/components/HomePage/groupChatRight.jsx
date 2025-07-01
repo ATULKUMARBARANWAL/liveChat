@@ -22,7 +22,7 @@ useEffect(() => {
 }, [sender]); // ✅ Correct
 const groupData = useSelector((state) => state.group.groups); // ✅ correct
 
-console.log(groupData)
+console.log("this was group Message",groupData)
   useEffect(() => {
     if (userDetails) {
       setUserList((prev) => [...prev, userDetails]);

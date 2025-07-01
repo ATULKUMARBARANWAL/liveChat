@@ -27,7 +27,7 @@ async allGroups(req,res,next)
 {
    
 const userId=req.params.userId;
- console.log("Kendi",userId)
+
 try{
 if(!userId)
 {

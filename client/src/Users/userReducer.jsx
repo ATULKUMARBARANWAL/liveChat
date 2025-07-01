@@ -24,6 +24,12 @@ const userSlice=createSlice({
   
             state.profileOpen = action.payload;
         
+        },
+        userVideoCall:(state,action)=>{
+            state.isVideoCall= action.payload;
+            state.loading=false;
+            state.error=null;
+
         }
     },
     
@@ -70,5 +76,5 @@ const userSlice=createSlice({
         });
     }
 })
-export const { resetUsers,seetProfileOpen } = userSlice.actions;
+export const { resetUsers,seetProfileOpen,userVideoCall } = userSlice.actions;
 export default userSlice.reducer;

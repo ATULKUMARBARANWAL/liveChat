@@ -34,6 +34,8 @@ try {
     const groupMessage=await messageModel.find({
         groupId:groupId
     })
+    .sort({createdAt:1})
+    .populate('sender','name email')
     if(!groupMessage)
     {
         throw new customError(404,"group is not present in database")
