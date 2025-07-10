@@ -58,9 +58,10 @@ io.on('connection', (socket) => {
     console.log("📥 Group Room Joined:", roomId);
   }
 });
-socket.on('joinVideoCall', ({ sender, receiver }) => {
-  console.log(`🔗 User ${sender} is joining a video call with ${receiver}`);
+socket.on('joinVideoCall', ({ sender, receiver, SenderName, ReceiverName }) => {
+  console.log(`🔗 User ${sender} is joining a video call with ${receiver} , SenderName: ${SenderName}, ReceiverName: ${ReceiverName}  `);
   const receiverSocketId = connectedUsers.get(receiver);
+  console.log(`Receiver Socket ID: ${receiverSocketId}`);
 
   if (!receiverSocketId) {
     console.error(`❌ Receiver with ID ${receiver} not found`);
@@ -70,7 +71,9 @@ socket.on('joinVideoCall', ({ sender, receiver }) => {
   io.to(receiverSocketId).emit('videoCallRequest', {
     sender,
     receiver,
-    socketId: socket.id, // This is the sender's socket ID
+    SenderName,
+    ReceiverName,
+    socketId: socket.id, 
   });
 
   console.log(`📤 Video call request sent from ${sender} to ${receiver}`);

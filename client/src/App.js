@@ -5,12 +5,13 @@ import HomePage from './components/HomePage/homePage.jsx';
 import Register from './components/userLoginSignup/signup.jsx';
 import UserSignIn from './components/userLoginSignup/login.jsx';
 import Navbar from './components/Navbar/Navbar.jsx';
-
+import GlobalSocketHandler from './components/HomePage/pickupCall.jsx';
 function App() {
   const user=useSelector((state)=>state.auth.user)
   return (
     <div className="App">
       <Router>
+        <GlobalSocketHandler /> 
        { user && <Navbar /> }
         <Routes>
           <Route path="/register" element={user? <Navigate to="/" />:<Register />} />

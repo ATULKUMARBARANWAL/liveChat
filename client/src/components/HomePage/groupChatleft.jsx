@@ -1,9 +1,8 @@
 import React, { useState, useEffect ,useRef} from "react";
 import { useSelector ,useDispatch} from "react-redux";
 import { SlOptionsVertical } from "react-icons/sl";
-import io from 'socket.io-client';
+import socket from "../../socket";
 import { allgroupMessage } from "../../Group/groupIndex";
-const socket = io.connect('http://localhost:3000');
 
 
 const GroupChatLeft = () => {

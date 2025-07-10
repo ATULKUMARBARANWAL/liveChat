@@ -1,22 +1,24 @@
-import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useRef } from 'react';
 import ChatSideBar from './leftHomePage';
 import UserProfile from './rightHomePage';
 import GroupChatLeft from './groupChatleft';
 import GroupChatRight from './groupChatRight.jsx';
 import VideoChatPage from './videoChat.jsx';
-import io from 'socket.io-client';
-
-const socket = io.connect('http://localhost:3000');
-
+import socket from '../../socket'; // Adjust the import path as necessary
+import { useSelector } from 'react-redux';
 const HomePage = () => {
+  const hasRegistered = useRef(false);
   const user = useSelector((state) => state.user);
   const userSearcherByNavbar = useSelector((state) => state.user.profileOpen);
   const loginUser = useSelector((state) => state.auth.user.data._id);
   const isUserVideoCall = useSelector((state) => state.user.isVideoCall);
 
   useEffect(() => {
-    socket.emit('register', loginUser);
+    if (!hasRegistered.current && loginUser) {
+      socket.emit('register', loginUser);
+      console.log('📡 Emitted register for', loginUser);
+      hasRegistered.current = true;
+    }
   }, [loginUser]);
 
   return (
@@ -25,7 +27,6 @@ const HomePage = () => {
         isUserVideoCall ? (
           <div className="w-full text-center mt-10">
             <VideoChatPage />
-      
           </div>
         ) : (
           <>

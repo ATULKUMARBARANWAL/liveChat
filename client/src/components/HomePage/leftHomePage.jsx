@@ -1,37 +1,26 @@
-import React, {  useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import io from 'socket.io-client';
-import { useDispatch } from 'react-redux';
-import {userVideoCall} from '../../Users/userReducer';
-
-const socket = io.connect('http://localhost:3000');
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { userVideoCall } from '../../Users/userReducer';
+import socket from '../../socket'; 
 
 const ChatSidebar = () => {
   const dispatch = useDispatch();
   const sender = useSelector((state) => state.auth.user.data._id);
   const receiver = useSelector((state) => state.user.userDetails.data._id);
   const messagess = useSelector((state) => state.user.messages);
-
+const senderName = useSelector((state) => state.auth.user.data.name);
+const receiverName = useSelector((state) => state.user.userDetails.data.name);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
-  const [onVideoCall,setOnVideoCall]=useState(false)
+  const [onVideoCall, setOnVideoCall] = useState(false);
 
   const roomId = [String(sender), String(receiver)].sort().join('_');
-function handleVideoCall() {
-  setOnVideoCall(true);
-  socket.emit('joinVideoCall', { sender, receiver });
-  dispatch(userVideoCall(true));
-}
-useEffect(() => {
-  const handler = (data) => {
-    console.log('Video call incoming', data);
-  };
-  socket.on('videoCallRequest', handler);
 
-  // Cleanup on unmount
-  return () => socket.off('videoCallRequest', handler);
-}, []);
-
+  function handleVideoCall() {
+    setOnVideoCall(true);
+    socket.emit('joinVideoCall', { sender, receiver, SenderName: senderName, ReceiverName: receiverName });
+    dispatch(userVideoCall(true));
+  }
 
   useEffect(() => {
     if (messagess && Array.isArray(messagess)) {
@@ -47,9 +36,9 @@ useEffect(() => {
     }
   }, [messagess]);
 
-  useEffect(() => {
-    if (sender) socket.emit('register', sender);
-  }, [sender]);
+  // useEffect(() => {
+  //   if (sender) socket.emit('register', sender);
+  // }, [sender]);
 
   useEffect(() => {
     if (roomId) socket.emit('joinRoom', roomId);
@@ -85,13 +74,10 @@ useEffect(() => {
   };
 
   return (
-    
     <div className="w-full md:w-2/3 h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col border border-gray-200">
       <div className="p-4 border-b flex justify-between items-center text-lg font-semibold bg-gradient-to-r from-blue-100 to-blue-200 rounded-t-2xl">
         <p>💬 Chat Sidebar</p>
-      
-
-        <i onClick={handleVideoCall}  className="fa-solid fa-video text-xl text-gray-700 cursor-pointer" />
+        <i onClick={handleVideoCall} className="fa-solid fa-video text-xl text-gray-700 cursor-pointer" />
       </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 scroll-smooth">
         {messages.map((msg, index) => (
