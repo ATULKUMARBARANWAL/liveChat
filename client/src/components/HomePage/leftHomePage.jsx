@@ -18,6 +18,7 @@ const receiverName = useSelector((state) => state.user.userDetails.data.name);
 
   function handleVideoCall() {
     setOnVideoCall(true);
+    console.log('Initiating video call...');
     socket.emit('joinVideoCall', { sender, receiver, SenderName: senderName, ReceiverName: receiverName });
     dispatch(userVideoCall(true));
   }

@@ -78,8 +78,36 @@ socket.on('joinVideoCall', ({ sender, receiver, SenderName, ReceiverName }) => {
 
   console.log(`📤 Video call request sent from ${sender} to ${receiver}`);
 });
-
-
+socket.on('rejectVideoCall', ({ sender, receiver, socketId, SenderName, ReceiverName }) => {
+  console.log(`❌ Video call rejected from ${sender} to ${receiver}`);  
+  const senderSocketId = connectedUsers.get(sender);
+  if (!senderSocketId) {
+    console.error(`❌ Sender with ID ${sender} not found`);
+    return;
+  }
+  io.to(senderSocketId).emit('videoCallRejected', {
+    sender,
+    receiver,
+    SenderName,
+    ReceiverName,
+    socketId: socket.id, 
+  });
+});
+socket.on('videoCallAccepted', ({ sender, receiver, socketId, SenderName, ReceiverName }) => {
+const receiverSocketId = connectedUsers.get(receiver);
+  if (!receiverSocketId) {
+    console.error(`❌ Receiver with ID ${receiver} not found`);
+    return;
+  }
+  io.to(receiverSocketId).emit('videoCallAcceptedd', {
+    sender,
+    receiver,
+    SenderName,
+    ReceiverName,
+    socketId: socket.id, 
+  });
+  console.log(`✅ Video call accepted from ${sender} to ${receiver}`);
+})
   // Handle incoming messages
   socket.on('sendMessages', async (message) => {
     console.log('📨 Message received:', message);

@@ -1,17 +1,21 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useRef, use } from 'react';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import socket from '../../socket'; // Adjust the import path as necessary
-
+import { userVideoCall } from '../../Users/userReducer';
 const GlobalSocketHandler = () => {
+  const ref= useRef(null);
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user._id);
   const [incomingCall, setIncomingCall] = useState(null);
 
   const joinVideoCall = useCallback((sender, receiver, socketId, senderName, receiverName) => {
-    setIncomingCall({ sender, receiver, socketId, senderName });
+    setIncomingCall({ sender, receiver, socketId, senderName, receiverName });
   }, []);
 
   useEffect(() => {
     socket.on('videoCallRequest', ({ sender, receiver, socketId, SenderName, ReceiverName }) => {
+  
       joinVideoCall(sender, receiver, socketId, SenderName, ReceiverName);
     });
 
@@ -19,15 +23,56 @@ const GlobalSocketHandler = () => {
       socket.off('videoCallRequest');
     };
   }, [joinVideoCall]);
-
-  const handleAccept = () => {
-    console.log('✅ Call accepted');
-    // TODO: Start video call or redirect
+useEffect(() => {
+  socket.on('videoCallRejected', ({ sender, receiver, SenderName, ReceiverName,socketId }) => {
+        dispatch(userVideoCall(false));
+    console.log(`❌ Video call rejected from ${sender} to ${receiver}`);
+  });
+}, [incomingCall]);
+useEffect(() => {
+  setTimeout(() => {
+    // Automatically reject the call after 10 seconds
+    if (incomingCall && ref.current !== "CallAccepted") {
+      socket.emit('rejectVideoCall', {
+        sender: incomingCall.sender,
+        receiver: incomingCall.receiver,
+        socketId: incomingCall.socketId,
+        SenderName: incomingCall.senderName,
+        ReceiverName: incomingCall.receiverName
+      });
+      setIncomingCall(null);
+    }
+  }, 10000);
+}, [incomingCall]);
+useEffect(() => {
+  socket.on('videoCallAcceptedd', ({ sender, receiver, SenderName, ReceiverName, socketId }) => {
+    console.log(`✅ Video call accepted from ${sender} to ${receiver}`);
+    dispatch(userVideoCall(true));
     setIncomingCall(null);
-  };
+  });
+}, [incomingCall]);
+  const handleAccept = () => {
+  socket.emit('videoCallAccepted', {
+    sender: incomingCall.sender,
+    receiver: incomingCall.receiver,
+    socketId: incomingCall.socketId,
+    SenderName: incomingCall.senderName,
+    ReceiverName: incomingCall.receiverName
+  });
+  ref.current = "CallAccepted";
+  setIncomingCall(null);
+};
 
   const handleReject = () => {
-    console.log('❌ Call rejected');
+  socket.emit('rejectVideoCall', {
+    sender: incomingCall.sender,
+    receiver: incomingCall.receiver,
+    socketId: incomingCall.socketId,
+    SenderName: incomingCall.senderName,
+    ReceiverName: incomingCall.receiverName
+  });
+
+
     setIncomingCall(null);
   };
 
