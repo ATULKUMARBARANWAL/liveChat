@@ -35,9 +35,18 @@ const HomePage = () => {
           </>
         )
       ) : (
+
         <>
-          <GroupChatRight />
-          <GroupChatLeft />
+          {isUserVideoCall ? (
+            <div className="w-full text-center mt-10">
+              <VideoChatPage />
+            </div>
+          ) : (
+            <>
+              <GroupChatRight />
+              <GroupChatLeft />
+            </>
+          )}
         </>
       )}
     </div>

@@ -26,6 +26,7 @@ const userSlice=createSlice({
         
         },
         userVideoCall:(state,action)=>{
+          
             state.isVideoCall= action.payload;
             state.loading=false;
             state.error=null;

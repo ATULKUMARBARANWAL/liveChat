@@ -24,11 +24,18 @@ const GlobalSocketHandler = () => {
     };
   }, [joinVideoCall]);
 useEffect(() => {
-  socket.on('videoCallRejected', ({ sender, receiver, SenderName, ReceiverName,socketId }) => {
-        dispatch(userVideoCall(false));
+  const handleVideoCallRejected = ({ sender, receiver, SenderName, ReceiverName, socketId }) => {
+    dispatch(userVideoCall(false));
     console.log(`❌ Video call rejected from ${sender} to ${receiver}`);
-  });
-}, [incomingCall]);
+  };
+
+  socket.on('videoCallRejected', handleVideoCallRejected);
+
+  return () => {
+    socket.off('videoCallRejected', handleVideoCallRejected); // ✅ Clean up
+  };
+}, []); // ✅ Only run once
+
 useEffect(() => {
   setTimeout(() => {
     // Automatically reject the call after 10 seconds
@@ -45,12 +52,19 @@ useEffect(() => {
   }, 10000);
 }, [incomingCall]);
 useEffect(() => {
-  socket.on('videoCallAcceptedd', ({ sender, receiver, SenderName, ReceiverName, socketId }) => {
+  const handleVideoCallAccepted = ({ sender, receiver, SenderName, ReceiverName, socketId }) => {
     console.log(`✅ Video call accepted from ${sender} to ${receiver}`);
     dispatch(userVideoCall(true));
     setIncomingCall(null);
-  });
-}, [incomingCall]);
+  };
+
+  socket.on('videoCallAcceptedd', handleVideoCallAccepted);
+
+  return () => {
+    socket.off('videoCallAcceptedd', handleVideoCallAccepted);
+  };
+}, []); // ❗ Empty dependency array ensures this runs only once
+
   const handleAccept = () => {
   socket.emit('videoCallAccepted', {
     sender: incomingCall.sender,

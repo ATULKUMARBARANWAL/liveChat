@@ -37,12 +37,12 @@ const io = new Server(httpServer, {
 const connectedUsers = new Map();
 
 io.on('connection', (socket) => {
-  console.log(`🔌 User connected: ${socket.id}`);
+
 
   // Register user with socket
   socket.on('register', (userId) => {
     connectedUsers.set(userId, socket.id);
-    console.log(`✅ Registered user: ${userId} -> ${socket.id}`);
+
   });
 
   // Join a room
@@ -51,20 +51,20 @@ io.on('connection', (socket) => {
     // 1-1 private room
     const sortedRoomId = roomId.split('_').sort().join('_');
     socket.join(sortedRoomId);
-    console.log("👥 Joined 1-1 Room:", sortedRoomId);
+
   } else {
     // group room
     socket.join(roomId);
-    console.log("📥 Group Room Joined:", roomId);
+  
   }
 });
 socket.on('joinVideoCall', ({ sender, receiver, SenderName, ReceiverName }) => {
-  console.log(`🔗 User ${sender} is joining a video call with ${receiver} , SenderName: ${SenderName}, ReceiverName: ${ReceiverName}  `);
+ 
   const receiverSocketId = connectedUsers.get(receiver);
-  console.log(`Receiver Socket ID: ${receiverSocketId}`);
+  
 
   if (!receiverSocketId) {
-    console.error(`❌ Receiver with ID ${receiver} not found`);
+
     return;
   }
 
@@ -76,13 +76,12 @@ socket.on('joinVideoCall', ({ sender, receiver, SenderName, ReceiverName }) => {
     socketId: socket.id, 
   });
 
-  console.log(`📤 Video call request sent from ${sender} to ${receiver}`);
 });
 socket.on('rejectVideoCall', ({ sender, receiver, socketId, SenderName, ReceiverName }) => {
-  console.log(`❌ Video call rejected from ${sender} to ${receiver}`);  
+
   const senderSocketId = connectedUsers.get(sender);
   if (!senderSocketId) {
-    console.error(`❌ Sender with ID ${sender} not found`);
+   
     return;
   }
   io.to(senderSocketId).emit('videoCallRejected', {
@@ -96,7 +95,7 @@ socket.on('rejectVideoCall', ({ sender, receiver, socketId, SenderName, Receiver
 socket.on('videoCallAccepted', ({ sender, receiver, socketId, SenderName, ReceiverName }) => {
 const receiverSocketId = connectedUsers.get(receiver);
   if (!receiverSocketId) {
-    console.error(`❌ Receiver with ID ${receiver} not found`);
+
     return;
   }
   io.to(receiverSocketId).emit('videoCallAcceptedd', {
@@ -106,11 +105,34 @@ const receiverSocketId = connectedUsers.get(receiver);
     ReceiverName,
     socketId: socket.id, 
   });
-  console.log(`✅ Video call accepted from ${sender} to ${receiver}`);
+
 })
-  // Handle incoming messages
+// Inside io.on('connection', socket => { ... })
+
+socket.on('videoOffer', ({ offer, sender, receiver }) => {
+  const receiverSocketId = connectedUsers.get(receiver);
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('videoOffer', { offer, sender });
+  }
+});
+
+socket.on('videoAnswer', ({ answer, sender, receiver }) => {
+  const receiverSocketId = connectedUsers.get(receiver);
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('videoAnswer', { answer });
+  }
+});
+
+socket.on('sendIceCandidate', ({ candidate, sender, receiver }) => {
+  console.log('🧊 Sending ICE candidate:', candidate, sender, receiver);
+  const receiverSocketId = connectedUsers.get(receiver);
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('receiveIceCandidate', { candidate });
+  }
+});
+
   socket.on('sendMessages', async (message) => {
-    console.log('📨 Message received:', message);
+
 
     const newMessage = new messageModel({
       sender: message.sender,
@@ -128,8 +150,7 @@ const receiverSocketId = connectedUsers.get(receiver);
       // Send message to both users in the room
       io.to(roomId).emit('receiveMessages', message);
 
-      // (Optional) Log current connected users
-      console.log("🔗 Connected Users:", [...connectedUsers.entries()]);
+
     } catch (err) {
       console.error('❌ Error saving message:', err);
     }
@@ -142,7 +163,6 @@ const receiverSocketId = connectedUsers.get(receiver);
     for (const [userId, sId] of connectedUsers.entries()) {
       if (sId === socket.id) {
         connectedUsers.delete(userId);
-        console.log(`🗑️ Removed user: ${userId}`);
         break;
       }
     }
