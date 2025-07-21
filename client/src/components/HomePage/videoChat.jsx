@@ -5,8 +5,18 @@ import socket from '../../socket'; // ✅ Make sure socket is imported
 
 const VideoChatPage = () => {
   const dispatch = useDispatch();
-const sender = useSelector((state) => state.auth?.user?.data?._id);
-const receiver = useSelector((state) => state.user?.userDetails?.data?._id);
+  
+const senderFromCall = useSelector((state) => state.videoCall.callData?.sender);
+const receiverFromCall = useSelector((state) => state.videoCall.callData?.receiver);
+const authUserId = useSelector((state) => state.auth.user?.data?._id) || null;
+const receiverUserId = useSelector((state) => state.user.userDetails?.data?._id) || null;
+const isCaller = useSelector((state) => state.videoCall.callData?.isCaller);
+
+const sender = senderFromCall || authUserId;
+const receiver = receiverFromCall || receiverUserId;
+
+console.log('Sender ID:', sender);
+console.log('Receiver ID:', receiver);
 
 
   const localVideoRef = useRef(null);
@@ -18,7 +28,27 @@ const receiver = useSelector((state) => state.user?.userDetails?.data?._id);
   const [isAudio, setIsAudio] = useState(true);
   const [isVideo, setIsVideo] = useState(true);
 
-  // 1. Setup Media and Peer
+useEffect(() => {
+  socket.on('videoAnswer', async ({ answer }) => {
+    try {
+      console.log('📩 Received videoAnswer at signaling state:', peer.current?.signalingState);
+      
+      if (peer.current?.signalingState === 'have-local-offer') {
+        await peer.current.setRemoteDescription(new RTCSessionDescription(answer));
+        console.log('✅ Remote description (answer) set successfully');
+      } else {
+        console.warn('⚠️ Cannot set answer. Unexpected signaling state:', peer.current?.signalingState);
+      }
+    } catch (error) {
+      console.error('❌ Error setting remote answer:', error);
+    }
+  });
+
+  return () => {
+    socket.off('videoAnswer');
+  };
+}, []);
+
   useEffect(() => {
    
     const setupMediaAndCall = async () => {
@@ -48,7 +78,7 @@ const receiver = useSelector((state) => state.user?.userDetails?.data?._id);
       // Handle remote stream
       peer.current.ontrack = (event) => {
         if (remoteVideoRef.current) {
-          console.log('📹 Remote video stream received', remoteVideoRef.current);
+         console.log('📹 ontrack event streams:', event.streams);
           remoteVideoRef.current.srcObject = event.streams[0];
         }
       };
@@ -66,6 +96,7 @@ const receiver = useSelector((state) => state.user?.userDetails?.data?._id);
 
       // Receive ICE
       socket.on('receiveIceCandidate', async ({ candidate }) => {
+        console.log('🧊 Received ICE candidate:', candidate);
         try {
           await peer.current.addIceCandidate(new RTCIceCandidate(candidate));
         } catch (err) {
@@ -77,7 +108,7 @@ const receiver = useSelector((state) => state.user?.userDetails?.data?._id);
       if (sender < receiver) {
         const offer = await peer.current.createOffer();
         await peer.current.setLocalDescription(offer);
-
+console.log('📞 Created video offer:', offer);
         socket.emit('videoOffer', {
           offer,
           sender,
@@ -86,12 +117,12 @@ const receiver = useSelector((state) => state.user?.userDetails?.data?._id);
       }
 
       // Receive answer
-      socket.on('videoAnswer', async ({ answer }) => {
-        await peer.current.setRemoteDescription(new RTCSessionDescription(answer));
-      });
+
+
 
       // Receive offer if callee
       socket.on('videoOffer', async ({ offer, sender: caller }) => {
+            if (isCaller) return;
         await peer.current.setRemoteDescription(new RTCSessionDescription(offer));
 
         const answer = await peer.current.createAnswer();
@@ -100,7 +131,7 @@ const receiver = useSelector((state) => state.user?.userDetails?.data?._id);
         socket.emit('videoAnswer', {
           answer,
           sender,
-          receiver: caller,
+          receiver,
         });
       });
     };

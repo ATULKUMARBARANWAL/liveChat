@@ -3,15 +3,24 @@ import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
 import socket from '../../socket'; // Adjust the import path as necessary
 import { userVideoCall } from '../../Users/userReducer';
+import { setCallData } from '../../videoCall/peerToPeerCallReducer';
 const GlobalSocketHandler = () => {
   const ref= useRef(null);
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user._id);
   const [incomingCall, setIncomingCall] = useState(null);
 
-  const joinVideoCall = useCallback((sender, receiver, socketId, senderName, receiverName) => {
-    setIncomingCall({ sender, receiver, socketId, senderName, receiverName });
-  }, []);
+const joinVideoCall = useCallback((sender, receiver, socketId, senderName, receiverName) => {
+  setIncomingCall({ sender, receiver, socketId, senderName, receiverName });
+  dispatch(setCallData({
+    sender,
+    receiver,
+    socketId,
+    senderName,
+    receiverName,
+    isCaller: false  // 🔴 This is the receiver
+  }));
+}, [dispatch]);
 
   useEffect(() => {
     socket.on('videoCallRequest', ({ sender, receiver, socketId, SenderName, ReceiverName }) => {
