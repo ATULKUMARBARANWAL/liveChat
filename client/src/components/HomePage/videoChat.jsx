@@ -11,12 +11,9 @@ const receiverFromCall = useSelector((state) => state.videoCall.callData?.receiv
 const authUserId = useSelector((state) => state.auth.user?.data?._id) || null;
 const receiverUserId = useSelector((state) => state.user.userDetails?.data?._id) || null;
 const isCaller = useSelector((state) => state.videoCall.callData?.isCaller);
-
+const answerCall=useSelector((state)=>state.videoCall.answerVideoCall)
 const sender = senderFromCall || authUserId;
 const receiver = receiverFromCall || receiverUserId;
-
-console.log('Sender ID:', sender);
-console.log('Receiver ID:', receiver);
 
 
   const localVideoRef = useRef(null);
@@ -28,26 +25,22 @@ console.log('Receiver ID:', receiver);
   const [isAudio, setIsAudio] = useState(true);
   const [isVideo, setIsVideo] = useState(true);
 
-useEffect(() => {
-  socket.on('videoAnswer', async ({ answer }) => {
-    try {
-      console.log('📩 Received videoAnswer at signaling state:', peer.current?.signalingState);
-      
-      if (peer.current?.signalingState === 'have-local-offer') {
-        await peer.current.setRemoteDescription(new RTCSessionDescription(answer));
-        console.log('✅ Remote description (answer) set successfully');
-      } else {
-        console.warn('⚠️ Cannot set answer. Unexpected signaling state:', peer.current?.signalingState);
-      }
-    } catch (error) {
-      console.error('❌ Error setting remote answer:', error);
-    }
-  });
+socket.on('videoAnswer', async ({ answer }) => {
+  try {
+    const state = peer.current?.signalingState;
+    console.log('📩 Received videoAnswer at signaling state:', state);
 
-  return () => {
-    socket.off('videoAnswer');
-  };
-}, []);
+    if (state === 'have-local-offer') {
+      await peer.current.setRemoteDescription(new RTCSessionDescription(answer));
+      console.log('✅ Remote description (answer) set successfully');
+    } else {
+      console.warn('⚠️ Skipped setting remote answer. Unexpected signaling state:', state);
+    }
+  } catch (error) {
+    console.error('❌ Error setting remote answer:', error);
+  }
+});
+
 
   useEffect(() => {
    
@@ -76,15 +69,19 @@ useEffect(() => {
       });
 
       // Handle remote stream
-      peer.current.ontrack = (event) => {
-        if (remoteVideoRef.current) {
-         console.log('📹 ontrack event streams:', event.streams);
-          remoteVideoRef.current.srcObject = event.streams[0];
-        }
-      };
+    peer.current.ontrack = (event) => {
+  if (
+    remoteVideoRef.current &&
+    !remoteVideoRef.current.srcObject
+  ) {
+    console.log('📹 ontrack event streams:', event.streams);
+    remoteVideoRef.current.srcObject = event.streams[0];
+  }
+};
 
       // Handle ICE candidates
       peer.current.onicecandidate = (event) => {
+        console.log('🧊 ICE candidate event:', event);
         if (event.candidate) {
           socket.emit('sendIceCandidate', {
             candidate: event.candidate,
@@ -105,7 +102,8 @@ useEffect(() => {
       });
 
       // If caller: create offer
-      if (sender < receiver) {
+   
+      if (answerCall && answerCall.receiver === receiver) {
         const offer = await peer.current.createOffer();
         await peer.current.setLocalDescription(offer);
 console.log('📞 Created video offer:', offer);
@@ -115,6 +113,9 @@ console.log('📞 Created video offer:', offer);
           receiver,
         });
       }
+      else{
+        console.log('📞 Waiting for video offer from caller',isCaller);
+      }
 
       // Receive answer
 
@@ -122,7 +123,7 @@ console.log('📞 Created video offer:', offer);
 
       // Receive offer if callee
       socket.on('videoOffer', async ({ offer, sender: caller }) => {
-            if (isCaller) return;
+          
         await peer.current.setRemoteDescription(new RTCSessionDescription(offer));
 
         const answer = await peer.current.createAnswer();

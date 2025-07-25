@@ -117,11 +117,11 @@ socket.on('videoOffer', ({ offer, sender, receiver }) => {
 });
 
 socket.on('videoAnswer', ({ answer, sender, receiver }) => {
-  const receiverSocketId = connectedUsers.get(receiver);
+  const senderSocketId = connectedUsers.get(sender);
   console
-  if (receiverSocketId) {
+  if (senderSocketId) {
     console.log('📞 Sending video answer:', answer, 'from', sender, 'to', receiver);
-    io.to(receiverSocketId).emit('videoAnswer', { answer });
+    io.to(senderSocketId).emit('videoAnswer', { answer });
   }
 });
 

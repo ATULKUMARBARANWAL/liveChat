@@ -37,10 +37,10 @@ async signInUser(userData){
             throw new customError("Please fill all the fields",400)
         }
         const salt =await bcrypt.genSalt(10);
-       
+       console.log(userData.password, "password",userData.email);
     
         const checkUser=await userModel.findOne({email:userData.email})
-   
+   console.log("checkUser:",checkUser);
         if(!checkUser){
             throw new customError("Invalid credentials",400)
         }
