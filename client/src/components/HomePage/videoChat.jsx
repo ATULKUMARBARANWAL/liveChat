@@ -25,21 +25,7 @@ const receiver = receiverFromCall || receiverUserId;
   const [isAudio, setIsAudio] = useState(true);
   const [isVideo, setIsVideo] = useState(true);
 
-socket.on('videoAnswer', async ({ answer }) => {
-  try {
-    const state = peer.current?.signalingState;
-    console.log('📩 Received videoAnswer at signaling state:', state);
 
-    if (state === 'have-local-offer') {
-      await peer.current.setRemoteDescription(new RTCSessionDescription(answer));
-      console.log('✅ Remote description (answer) set successfully');
-    } else {
-      console.warn('⚠️ Skipped setting remote answer. Unexpected signaling state:', state);
-    }
-  } catch (error) {
-    console.error('❌ Error setting remote answer:', error);
-  }
-});
 
 
   useEffect(() => {
@@ -140,7 +126,21 @@ console.log('📞 Created video offer:', offer);
     setupMediaAndCall();
   }, [sender, receiver]);
 
-  // End Call
+socket.on('videoAnswer', async ({ answer }) => {
+  try {
+    const state = peer.current?.signalingState;
+    console.log('📩 Received videoAnswer at signaling state:', state);
+
+    if (state === 'have-local-offer') {
+      await peer.current.setRemoteDescription(new RTCSessionDescription(answer));
+      console.log('✅ Remote description (answer) set successfully');
+    } else {
+      console.warn('⚠️ Skipped setting remote answer. Unexpected signaling state:', state);
+    }
+  } catch (error) {
+    console.error('❌ Error setting remote answer:', error);
+  }
+});
   const endCall = () => {
     dispatch(userVideoCall(false));
     if (peer.current) {

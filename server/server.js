@@ -118,7 +118,7 @@ socket.on('videoOffer', ({ offer, sender, receiver }) => {
 
 socket.on('videoAnswer', ({ answer, sender, receiver }) => {
   const senderSocketId = connectedUsers.get(sender);
-  console
+
   if (senderSocketId) {
     console.log('📞 Sending video answer:', answer, 'from', sender, 'to', receiver);
     io.to(senderSocketId).emit('videoAnswer', { answer });
@@ -126,16 +126,16 @@ socket.on('videoAnswer', ({ answer, sender, receiver }) => {
 });
 
 socket.on('sendIceCandidate', ({ candidate, sender, receiver }) => {
-  console.log('🧊 Sending ICE candidate:', candidate, sender, receiver);
+ 
   const receiverSocketId = connectedUsers.get(receiver);
 
 
   if(!receiverSocketId) {
-    console.error(`Receiver with ID ${receiver} not connected.`);
+   
     return;
   }
   if (receiverSocketId) {
-    console.log(`✅ Emitted ICE candidate to receiver socket: ${receiverSocketId}`);
+ 
     io.to(receiverSocketId).emit('receiveIceCandidate', { candidate });
   }
 });
