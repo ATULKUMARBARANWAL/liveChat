@@ -121,7 +121,7 @@ socket.on('videoAnswer', ({ answer, sender, receiver }) => {
 
   if (senderSocketId) {
     console.log('📞 Sending video answer:', answer, 'from', sender, 'to', receiver);
-    io.to(senderSocketId).emit('videoAnswer', { answer });
+    io.to(senderSocketId).emit('videoAnswerr', { answer });
   }
 });
 
